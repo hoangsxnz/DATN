@@ -1,0 +1,11 @@
+IMAGE_PATH = 'C:\\Users\\ADMIN\\Desktop\\DATN\\data\\train\\train'
+MASK_PATH = 'C:\\Users\\ADMIN\\Desktop\\DATN\\data\\train_gt\\train_gt'
+TEST_PATH = 'C:\\Users\\ADMIN\\Desktop\\DATN\\data\\test\\test'
+MASK_RES_PATH = 'C:\\Users\\ADMIN\Desktop\\DATN\\res'
+WIDTH = 256
+HEIGHT = 256
+BATCH_SIZE = 8
+MODEL_SELECTION = "att_unet"
+SAVE_FOLDER = "C:\\Users\\ADMIN\Desktop\\DATN\\res"
+WEIGHT_PATH = "C:\\Users\\ADMIN\\Desktop\\DATN\\weights\\att_unet.h5"
+SHOW_IMAGE = True
