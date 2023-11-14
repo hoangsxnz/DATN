@@ -1,9 +1,10 @@
-from tensorflow.keras.layers import Input, Conv2D, BatchNormalization, Activation, MaxPool2D, Conv2DTranspose, Concatenate,Lambda
-from keras.layers import Conv2D, MaxPooling2D, UpSampling2D, BatchNormalization, Reshape, Permute, Activation, Input,add, multiply
-from tensorflow.keras.models import Model
+from keras.layers import Input, Conv2D, BatchNormalization, Activation, MaxPool2D, Conv2DTranspose, Concatenate,Lambda
+from keras.layers import Conv2D, MaxPooling2D, UpSampling2D, BatchNormalization, Reshape, Permute, Activation, Input, add, multiply
+from keras.models import Model
 import tensorflow as tf
-import tensorflow.keras.backend as K
-from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
+import keras.backend as K
+from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
+from loss.focalloss import focal_loss
 
 def conv_block(input, num_filters):
     x = Conv2D(filters=num_filters, kernel_size=3, padding='same')(input)
@@ -107,17 +108,17 @@ def build_att_unet(shape=(256,256,3)):
     return Model(input, output, name='U-Net')
 
 def compile_att_unet(model):
-    model.compile(loss=tfa.losses.SigmoidFocalCrossEntropy(),
+    model.compile(loss=focal_loss(gamma=2., alpha=.25),
              optimizer=tf.keras.optimizers.Adam(1e-4),
              metrics=[
                  tf.keras.metrics.Precision(),
                  tf.keras.metrics.Recall(),
-                 tf.keras.metrics.CategoricalAccuracy(name='acc')
+                 tf.keras.metrics.CategoricalAccuracy(name='acc'),
                 #  tf.keras.metrics.MeanIoU(num_classes=3)
              ])
 
     callbacks = [
-        ModelCheckpoint('att_unet.h5', verbose=1, save_best_model=True),
+        ModelCheckpoint('weights\\att_unet.h5', verbose=1, save_best_model=True),
         ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=5, verbose=1, min_lr=1e-6),
         EarlyStopping(monitor='val_loss', patience=5, verbose=1)
     ]

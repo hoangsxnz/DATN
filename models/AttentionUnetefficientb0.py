@@ -1,17 +1,19 @@
 import os
 import tensorflow as tf
+
+from loss.focalloss import focal_loss
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-from tensorflow.keras.layers import Input, Conv2D, Conv2DTranspose, BatchNormalization, Activation, MaxPool2D, Concatenate
-from tensorflow.keras.models import Model
-from tensorflow.keras.applications import MobileNetV2,EfficientNetB0
+from keras.layers import Input, Conv2D, Conv2DTranspose, BatchNormalization, Activation, MaxPool2D, Concatenate
+from keras.models import Model
+from keras.applications import EfficientNetB0
 import tensorflow as tf
-from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
-from tensorflow.keras.layers import Input, Conv2D, BatchNormalization, Activation, MaxPool2D, Conv2DTranspose, Concatenate,Lambda
+from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
+from keras.layers import Input, Conv2D, BatchNormalization, Activation, MaxPool2D, Conv2DTranspose, Concatenate,Lambda
 from keras.layers import Conv2D, MaxPooling2D, UpSampling2D, BatchNormalization, Reshape, Permute, Activation, Input,add, multiply
-from tensorflow.keras.models import Model
+from keras.models import Model
 import tensorflow as tf
-import tensorflow.keras.backend as K
-from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
+import keras.backend as K
+from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
 
 def conv_block(input, num_filters):
     x = Conv2D(filters=num_filters, kernel_size=3, padding='same')(input)
@@ -119,7 +121,7 @@ def build_att_unet_eff0(shape=(256,256,3)):
     return Model(inputs, outputs, name='Attention-EfficientB0-Unet')
 
 def compile_att_unet_eff0(unet_att_eff0):
-    unet_att_eff0.compile(loss='categorical_crossentropy',
+    unet_att_eff0.compile(loss=focal_loss(gamma=2., alpha=.25),
              optimizer=tf.keras.optimizers.Adam(1e-4),
              metrics=[
                  tf.keras.metrics.Precision(),
@@ -129,7 +131,7 @@ def compile_att_unet_eff0(unet_att_eff0):
              ])
 
     callbacks = [
-        ModelCheckpoint('unet_att_eff0.h5', verbose=1, save_best_model=True),
+        ModelCheckpoint('weights\\unet_att_eff0.h5', verbose=1, save_best_model=True),
         ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=5, verbose=1, min_lr=1e-6),
         EarlyStopping(monitor='val_loss', patience=5, verbose=1)
     ]   

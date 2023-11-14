@@ -1,6 +1,6 @@
 from tensorflow import keras
 from keras.models import load_model
-import tensorflow.keras.backend as K
+import keras.backend as K
 from tqdm import tqdm
 import os 
 from PIL import Image as im
@@ -8,7 +8,9 @@ import numpy as np
 from dataset import read_image, show_example, read_image_ori
 from config import SAVE_FOLDER, SHOW_IMAGE,TEST_PATH
 import cv2 
-model = load_model('weights\\att_unet.h5', custom_objects={"K": K})
+from loss.focalloss import focal_loss
+
+model = load_model('weights\\att_unet.h5', custom_objects={"K": K}, compile=False)
 save_folder = SAVE_FOLDER
 test_images = [os.path.join(TEST_PATH, f'{x}') for x in os.listdir(
 TEST_PATH)]
